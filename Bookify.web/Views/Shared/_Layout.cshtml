@@ -1,8 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="__RequestVerificationToken" content="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <title>@ViewData["Title"] - Bookify.web</title>
     <!--begin::Fonts(mandatory for all pages)-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
@@ -13,6 +15,20 @@
     <!--end::Global Stylesheets Bundle-->
 </head>
 <body  id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="true" class="app-default">
+  
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 100">
+    <div id="kt_docs_toast_toggle" class="toast fade" role="alert" aria-live="assertive" aria-atomic="true" data-kt-initialized="1">
+        <div class="toast-header">
+            <i class="ki-duotone ki-abstract-19 fs-2 text-danger me-3"><span class="path1"></span><span class="path2"></span></i>                        
+            <strong class="me-auto" id="title">Keenthemes</strong>
+            <small class="fs-8" id="date">11 mins ago</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"  id="body">
+            Hello, world! This is a toast message.
+        </div>
+    </div>
+</div>
   <!--begin::Theme mode setup on page load-->
 		<script>var defaultThemeMode = "light"; var themeMode; if ( document.documentElement ) { if ( document.documentElement.hasAttribute("data-bs-theme-mode")) { themeMode = document.documentElement.getAttribute("data-bs-theme-mode"); } else { if ( localStorage.getItem("data-bs-theme") !== null ) { themeMode = localStorage.getItem("data-bs-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-bs-theme", themeMode); }</script>
 		<!--end::Theme mode setup on page load-->
@@ -20,13 +36,66 @@
 		<div class="d-flex flex-column flex-root app-root" id="kt_app_root">
 			<!--begin::Page-->
 			<div class="app-page flex-column flex-column-fluid" id="kt_app_page">
-				<partial name="partials/_header">
+				<partial name="partials/_header" />
 				<!--begin::Wrapper-->
 				<div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
 					<!--begin::Toolbar-->
 					<div id="kt_app_toolbar" class="app-toolbar py-6">
 						<!--begin::Toolbar container-->
-					
+				        <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex align-items-start">
+                            <!--begin::Toolbar container-->
+                            <div class="d-flex flex-column flex-row-fluid">
+                                <!--begin::Toolbar wrapper-->
+                                <div class="d-flex align-items-center pt-1">
+                                    <!--begin::Breadcrumb-->
+                                    <ul class="breadcrumb breadcrumb-separatorless fw-semibold">
+                                        <!--begin::Item-->
+                                        <li class="breadcrumb-item text-white fw-bold lh-1">
+                                            <a href="index.html" class="text-white text-hover-primary">
+                                                <i class="ki-outline ki-home text-white fs-3"></i>
+                                            </a>
+                                        </li>
+                                        <!--end::Item-->
+                                        <!--begin::Item-->
+                                        <li class="breadcrumb-item">
+                                            <i class="ki-outline ki-right fs-4 text-white mx-n1"></i>
+                                        </li>
+                                        <!--end::Item-->
+                                        <!--begin::Item-->
+                                        <li class="breadcrumb-item text-white fw-bold lh-1">Inbox</li>
+                                        <!--end::Item-->
+                                    </ul>
+                                    <!--end::Breadcrumb-->
+                                </div>
+                                <!--end::Toolbar wrapper=-->
+                                <!--begin::Toolbar wrapper=-->
+                                <div class="d-flex flex-stack flex-wrap flex-lg-nowrap gap-4 gap-lg-10 pt-6 pb-18 py-lg-13">
+                                    <!--begin::Page title-->
+                                    <div class="page-title d-flex align-items-center me-3">
+                                        <img alt="Logo" src="assets/media/svg/misc/layer.svg" class="h-60px me-5">
+                                        <!--begin::Title-->
+                                        <h1 class="page-heading d-flex text-white fw-bolder fs-2 flex-column justify-content-center my-0">@ViewData["Title"]
+                                        <!--begin::Description-->
+                                        <span class="page-desc text-white opacity-50 fs-6 fw-bold pt-4">@ViewData["Description"]</span>
+                                        <!--end::Description--></h1>
+                                        <!--end::Title-->
+                                    </div>
+                                    <!--end::Page title-->
+                                    <!--begin::Items-->
+                                    <div class="d-flex gap-4 gap-lg-13">
+                                        
+                                        <!--begin::Item-->
+                                        <div class="d-flex flex-column">
+                                            @RenderSection("toolbar_buttons", required: false)
+                                        </div>
+                                        <!--end::Item-->
+                                    </div>
+                                    <!--end::Items-->
+                                </div>
+                                <!--end::Toolbar wrapper=-->
+                            </div>
+                            <!--end::Toolbar container=-->
+                        </div>
 						<!--end::Toolbar container-->
 					</div>
 					<!--end::Toolbar-->
@@ -66,7 +135,8 @@
 		<!--end::App-->
     
 
-    	
+    	<span class="d-none" id="successMsg">@TempData["success"]</span>
+    	<span class="d-none" id="errorMsg">@TempData["error"]</span>
 		<!--begin::Scrolltop-->
 		<div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
 			<i class="ki-outline ki-arrow-up"></i>
@@ -80,7 +150,9 @@
 		<!--end::Global Javascript Bundle-->
 		
 		<!--end::Javascript-->
-    @await RenderSectionAsync("Scripts", required: false)
+        @await RenderSectionAsync("Scripts", required: false)
+		<script src="~/assets/js/custom.js"></script>
+
 </body>
 </html>
 

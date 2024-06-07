@@ -1,0 +1,131 @@
+﻿@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Categories";
+    ViewData["Description"] = "We should list and mange all categories here!";
+}
+
+<div class="row gx-6 gx-xl-9">
+    <div class="col-lg-12 ">
+        @if(!Model.Any()) 
+        {
+        <!--begin::Card-->
+        <div
+            class="alert alert-dismissible bg-light-warning border border-warning border-dashed d-flex flex-column flex-sm-row w-100 p-5 mb-10">
+            <!--begin::Icon-->
+            <i class="ki-duotone ki-information-2 fs-2hx text-warning me-4 mb-5 mb-sm-0"><span
+                    class="path1"></span><span class="path2"></span><span class="path3"></span></i> 
+            <!--end::Icon-->
+
+            <!--begin::Content-->
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <h5 class="mb-1">No any categories found !</h5>
+                <span>The alert component can be used to highlight certain parts of your page for higher content
+                    visibility.</span>
+            </div>
+            <!--end::Content-->
+
+        </div>
+        <!--end::Card-->
+        } else {
+            <div class="table-responsive">
+                <table class="table table-hover table-rounded table-striped border gy-7 gs-7">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 border-bottom-2 border-gray-200">
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Created On</th>
+                            <th>Last Update On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var category in Model)
+                        {
+                            <tr>
+                                <td>@category.Id</td>
+                                <td>@category.Name</td>
+                                <td id="isDeleted">
+                                    @if(category.IsDeleted) {
+                                        <span class="badge badge-light-danger fs-base p-3">
+                                            <i class="ki-outline ki-trash fs-5 text-danger ms-n1 me-3"></i>
+                                            Deleted
+                                        </span>
+                                    } else {
+                                        <span class="badge badge-light-success fs-base p-3">
+                                            <i class="ki-outline ki-subtitle fs-5 text-success ms-n1 me-3"></i>
+                                            Not Deleted
+                                        </span>
+                                    }
+                                </td>
+                                <td>@category.CreatedOn</td>
+                                <td id="updatedOn">@category.UpdatedOn</td>
+                                <td>
+                                    <a asp-controller="Categories" asp-action="Edit" asp-route-id="@category.Id"  class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary hover-scale">Edit</a>
+                                    <a href="javascript:;" data-id="@category.Id"  class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger hover-scale" id="toggle_status" onclick="onClickToggleStatusBtn($(this));">Toggle Status</a>
+                                </td>
+                            </tr>
+                        }
+                       
+                        
+                    </tbody>
+                </table>
+            </div>
+        }
+       
+    </div>
+</div>
+
+@section toolbar_buttons {
+    <a asp-controller="Categories" asp-action="Create" class="btn btn-bg-light btn-outline btn-outline-dashed hover-scale">New Category</a>
+}
+
+@section Scripts {
+    <script>
+        function onClickToggleStatusBtn(item) {
+            Swal.fire({
+                html: `<h1>Are you Sure?</h1>`,
+                icon: "info",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Ok, got it!",
+                cancelButtonText: 'Nope, cancel it',
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: 'btn btn-danger'
+                }
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    changeToggleStatus(item);
+                    Swal.fire("Saved!", "", "success");
+                } 
+            });
+        }
+        function changeToggleStatus(item) {
+            var id = item.data('id');
+            $.ajax({
+                method: 'post',
+                url: "/Categories/ToggleStatus/"+id, 
+                data: {
+                    "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
+                },
+                success: function(result){
+                    if(result.isDeleted) {
+                        var html = (`<span class="badge badge-light-danger fs-base p-3">
+                            <i class="ki-outline ki-trash fs-5 text-danger ms-n1 me-3"></i>
+                            Deleted
+                        </span>`)
+                    } else {
+                         var html = (`<span class="badge badge-light-success fs-base p-3">
+                            <i class="ki-outline ki-subtitle fs-5 text-success ms-n1 me-3"></i>
+                            Not Deleted
+                        </span>`)
+                    }
+                    item.parent().parent().find("#isDeleted").html(html)
+                    item.parent().parent().find("#updatedOn").text(result.updatedOn)
+                }
+            });
+        }
+
+    </script>
+}

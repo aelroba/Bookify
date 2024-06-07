@@ -1,0 +1,71 @@
+@model CreateCategoryViewModel
+
+@{
+    ViewData["Title"] = "Update Category";
+    ViewData["Description"] = "We provide you all options to update category here!";
+}
+<!--begin::Layout-->
+<div class="d-flex flex-column flex-lg-row mb-17">
+    <!--begin::Content-->
+    <div class="flex-lg-row-fluid me-0 me-lg-20">
+        <!--begin::Form-->
+        <form class="form mb-15" method="post" id="kt_careers_form" asp-controller="Categories" asp-action="Edit">
+            <!--begin::Input group-->
+            <div class="row mb-5 has-validation">
+
+                <div class="col-md-6">
+                    <div class="form-floating mb-7">
+                        <input type="text" class="form-control form-control-solid" asp-for="Name"  placeholder="Please enter category name"/>
+                        <label asp-for="Name"></label>
+                    </div>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                
+            </div>
+            <!--end::Input group-->
+            <!--begin::Separator-->
+            <div class="separator mb-8"></div>
+            <!--end::Separator-->
+            <!--begin::Submit-->
+            <button type="submit" class="btn btn-primary" id="kt_careers_submit_button">
+                <!--begin::Indicator label-->
+                <span class="indicator-label">Apply Now</span>
+                <!--end::Indicator label-->
+                <!--begin::Indicator progress-->
+                <span class="indicator-progress">Please wait... 
+                <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                <!--end::Indicator progress-->
+            </button>
+            <!--end::Submit-->
+        </form>
+        <!--end::Form-->
+    </div>
+    <!--end::Content-->
+    <!--begin::Sidebar-->
+    <div class="flex-lg-row-auto w-100 w-lg-275px w-xxl-350px">
+        <!--begin::Careers about-->
+        <div class="card bg-light">
+            <!--begin::Body-->
+            <div class="card-body">
+                <!--begin::Top-->
+                <div class="mb-7">
+                    <!--begin::Title-->
+                    <h2 class="fs-1 text-gray-800 w-bolder mb-6">Why we using categories?</h2>
+                    <!--end::Title-->
+                    <!--begin::Text-->
+                    <p class="fw-semibold fs-6 text-gray-600">First, a disclaimer – the entire process of writing a blog post often takes more than a couple of hours, even if you can type eighty words as per minute and your writing skills are sharp.</p>
+                    <!--end::Text-->
+                </div>
+                <!--end::Top-->
+            </div>
+            <!--end::Body-->
+        </div>
+        <!--end::Careers about-->
+    </div>
+    <!--end::Sidebar-->
+</div>
+<!--end::Layout-->
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
