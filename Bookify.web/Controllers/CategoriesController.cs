@@ -126,5 +126,12 @@ namespace Bookify.web.Controllers
             _context.SaveChanges();
             return Ok(new {IsDeleted = category.IsDeleted, UpdatedOn = category.UpdatedOn.ToString()}); 
         }
+
+        public IActionResult CheckAvailability(CreateCategoryViewModel model)
+        {
+            var category = _context.Categories.SingleOrDefault(c => c.Name == model.Name);
+            var isAllowed = category is null || category.Id.Equals(model.Id);
+            return Json(isAllowed);
+        }
     }
 }

@@ -9,6 +9,8 @@
 <form class="form" asp-controller="Categories" asp-action="UpdateAjax"
         data-ajax-method="post" 
         data-ajax="true" 
+        data-ajax-begin="onModalStart"
+        data-ajax-complete="onModalComplete"
         data-ajax-success="onSuccessEditForm" 
         data-ajax-failuer="showToast('Something went wrong!', 'text-white bg-danger');" 
         id="kt_careers_form">

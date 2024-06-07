@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Category>
 @{
     ViewData["Title"] = "Categories";
+    ViewData["datatable"] = "kt_datatable";
     ViewData["Description"] = "We should list and mange all categories here!";
 }
 
@@ -27,15 +28,55 @@
         </div>
         <!--end::Card-->
         } else {
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <div class="card-title">
+                    <div class="d-flex align-items-center position-relative my-1">
+                        <span class="svg-icon fs-1 position-absolute ms-4">...</span>
+                        <input type="text" data-kt-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Search Report" />
+                    </div>
+                    <div id="kt_datatable_example_1_export" class="d-none"></div>
+                </div>
+                <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                    <button type="button" class="btn btn-light-primary" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                        <i class="ki-duotone ki-exit-down fs-2"><span class="path1"></span><span class="path2"></span></i>
+                        Export Report
+                    </button>
+                    <div id="kt_datatable_example_export_menu" class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-200px py-4" data-kt-menu="true">
+                        <div class="menu-item px-3">
+                            <a href="#" class="menu-link px-3" data-kt-export="copy">
+                            Copy to clipboard
+                            </a>
+                        </div>
+                        <div class="menu-item px-3">
+                            <a href="#" class="menu-link px-3" data-kt-export="excel">
+                            Export as Excel
+                            </a>
+                        </div>
+                        <div class="menu-item px-3">
+                            <a href="#" class="menu-link px-3" data-kt-export="csv">
+                            Export as CSV
+                            </a>
+                        </div>
+                        <div class="menu-item px-3">
+                            <a href="#" class="menu-link px-3" data-kt-export="pdf">
+                            Export as PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="kt_datatable_example_buttons" class="d-none"></div>
+                </div>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover table-rounded table-striped border gy-7 gs-7">
+                <table id="kt_datatable" exportFileName="Ahmed Elroba" class="table table-hover table-rounded table-striped border gy-7 gs-7">
                     <thead>
                         <tr class="fw-semibold fs-6 text-gray-800 border-bottom-2 border-gray-200">
                             <th>#</th>
                             <th>Name</th>
+                            <th>Is Deleted</th>
                             <th>Created On</th>
                             <th>Last Update On</th>
-                            <th>Actions</th>
+                            <th non-exportable="yes">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,7 +91,7 @@
        
     </div>
 </div>
-
+<partial name="Modal/_modal" />
 @section toolbar_buttons {
     <button type="button" class="btn btn-bg-light btn-outline btn-outline-dashed hover-scale" 
             data-bs-toggle="modal" 
@@ -61,79 +102,10 @@
     </button>
 }
 
+
 @section Scripts {
-    <partial name="Modal/_modal" />
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        function onClickToggleStatusBtn(item) {
-            Swal.fire({
-                html: `<h1>Are you Sure?</h1>`,
-                icon: "info",
-                buttonsStyling: false,
-                showCancelButton: true,
-                confirmButtonText: "Ok, got it!",
-                cancelButtonText: 'Nope, cancel it',
-                customClass: {
-                    confirmButton: "btn btn-primary",
-                    cancelButton: 'btn btn-danger'
-                }
-            }).then((result) => {
-                /* Read more about isConfirmed, isDenied below */
-                if (result.isConfirmed) {
-                    changeToggleStatus(item);
-                    Swal.fire("Saved!", "", "success");
-                } 
-            });
-        }
-        function changeToggleStatus(item) {
-            var id = item.data('id');
-            $.ajax({
-                method: 'post',
-                url: "/Categories/ToggleStatus/"+id, 
-                data: {
-                    "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
-                },
-                success: function(result){
-                    if(result.isDeleted) {
-                        var html = (`<span class="badge badge-light-danger fs-base p-3">
-                            <i class="ki-outline ki-trash fs-5 text-danger ms-n1 me-3"></i>
-                            Deleted
-                        </span>`)
-                    } else {
-                         var html = (`<span class="badge badge-light-success fs-base p-3">
-                            <i class="ki-outline ki-subtitle fs-5 text-success ms-n1 me-3"></i>
-                            Not Deleted
-                        </span>`)
-                    }
-                    item.parent().parent().find("#isDeleted").html(html)
-                    item.parent().parent().find("#updatedOn").text(result.updatedOn)
-                }
-            });
-        }
-        var createModal = new bootstrap.Modal(document.getElementById('categoryModal'), {keyboard: false});
-        var updateRow;
-        function onClickNewOrUpdateCategory(type, button, id = null) {
-            $.ajax({
-                url: "/Categories/" +(type == 'Update' ? "UpdateAjax" : "CreateAjax") + (id != null ? "/"+id : ""),
-                success: function(form){
-                    $("#categoryModal").find('.modal-content').html(form);
-                    $.validator.unobtrusive.parse($("#categoryModal"))
-                },
-            });
-            if (type == 'Update') updateRow = $('tbody').find("tr#"+id);
-        }
-        function onSuccessForm(html) {
-            showToast('Category added successfully!', 'text-white bg-success');
-            createModal.hide()
-            $('tbody').append(html)
-        }
-        function onSuccessEditForm(html) {
-            showToast('Category edited successfully!', 'text-white bg-success');
-            createModal.hide()
-            if(updateRow !== undefined) {
-                $(updateRow).replaceWith(html);
-                updateRow = undefined;
-            }
-        }
-    </script>
+    
+    <script src="~/js/pages/categories.js" asp-append-version="true"></script>
+    
 }

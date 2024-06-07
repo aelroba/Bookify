@@ -9,13 +9,22 @@
     <!--begin::Fonts(mandatory for all pages)-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <!--end::Fonts-->
+    @if(!String.IsNullOrEmpty(ViewData["datatable"]?.ToString())) {
+        <meta name="datatable" content="@ViewData["datatable"]" />
+        <link href="assets/plugins/custom/datatables/datatables.bundle.css" rel="stylesheet" type="text/css"/>
+    }
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="~/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
     <!--end::Global Stylesheets Bundle-->
 </head>
-<body  id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="true" class="app-default">
-  
+<body  id="kt_app_body" data-kt-app-header-fixed-mobile="true" data-kt-app-toolbar-enabled="true" class="app-default page-loading">
+  <!--begin::Page loading(append to body)-->
+<div class="page-loader flex-column bg-dark bg-opacity-25">
+    <span class="spinner-border text-primary" role="status"></span>
+    <span class="text-gray-800 fs-6 fw-semibold mt-5">Loading...</span>
+</div>
+<!--end::Page loading-->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 100">
     <div id="kt_docs_toast_toggle" class="toast fade" role="alert" aria-live="assertive" aria-atomic="true" data-kt-initialized="1">
         <div class="toast-header">
@@ -150,7 +159,10 @@
 		<script src="~/assets/js/jquery.unobtrusive-ajax.js"></script>
 
 		<!--end::Global Javascript Bundle-->
-		
+        @if(!String.IsNullOrEmpty(ViewData["datatable"]?.ToString())) {
+            <script src="assets/plugins/custom/datatables/datatables.bundle.js"></script>
+            <script src="assets/plugins/custom/datatables/init.js"></script>
+        }
 		<!--end::Javascript-->
         @await RenderSectionAsync("Scripts", required: false)
 		<script src="~/assets/js/custom.js"></script>
