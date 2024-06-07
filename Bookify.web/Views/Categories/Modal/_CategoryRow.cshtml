@@ -1,0 +1,27 @@
+@model Category
+<tr id="@Model.Id">
+    <td>@Model.Id</td>
+    <td>@Model.Name</td>
+    <td id="isDeleted">
+        @if(Model.IsDeleted) {
+            <span class="badge badge-light-danger fs-base p-3">
+                <i class="ki-outline ki-trash fs-5 text-danger ms-n1 me-3"></i>
+                Deleted
+            </span>
+        } else {
+            <span class="badge badge-light-success fs-base p-3">
+                <i class="ki-outline ki-subtitle fs-5 text-success ms-n1 me-3"></i>
+                Not Deleted
+            </span>
+        }
+    </td>
+    <td>@Model.CreatedOn</td>
+    <td id="updatedOn">@Model.UpdatedOn</td>
+    <td>
+        <a data-bs-toggle="modal" 
+            data-bs-target="#categoryModal"
+            onclick="onClickNewOrUpdateCategory('Update', $(this), '@Model.Id')"
+              class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary hover-scale">Edit</a>
+        <a href="javascript:;" data-id="@Model.Id"  class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger hover-scale" id="toggle_status" onclick="onClickToggleStatusBtn($(this));">Toggle Status</a>
+    </td>
+</tr>

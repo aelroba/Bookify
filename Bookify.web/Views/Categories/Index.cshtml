@@ -41,32 +41,8 @@
                     <tbody>
                         @foreach(var category in Model)
                         {
-                            <tr>
-                                <td>@category.Id</td>
-                                <td>@category.Name</td>
-                                <td id="isDeleted">
-                                    @if(category.IsDeleted) {
-                                        <span class="badge badge-light-danger fs-base p-3">
-                                            <i class="ki-outline ki-trash fs-5 text-danger ms-n1 me-3"></i>
-                                            Deleted
-                                        </span>
-                                    } else {
-                                        <span class="badge badge-light-success fs-base p-3">
-                                            <i class="ki-outline ki-subtitle fs-5 text-success ms-n1 me-3"></i>
-                                            Not Deleted
-                                        </span>
-                                    }
-                                </td>
-                                <td>@category.CreatedOn</td>
-                                <td id="updatedOn">@category.UpdatedOn</td>
-                                <td>
-                                    <a asp-controller="Categories" asp-action="Edit" asp-route-id="@category.Id"  class="btn btn-outline btn-outline-dashed btn-outline-primary btn-active-light-primary hover-scale">Edit</a>
-                                    <a href="javascript:;" data-id="@category.Id"  class="btn btn-outline btn-outline-dashed btn-outline-danger btn-active-light-danger hover-scale" id="toggle_status" onclick="onClickToggleStatusBtn($(this));">Toggle Status</a>
-                                </td>
-                            </tr>
+                            <partial name="~/Views/Categories/Modal/_CategoryRow.cshtml" model="@category" />
                         }
-                       
-                        
                     </tbody>
                 </table>
             </div>
@@ -76,10 +52,18 @@
 </div>
 
 @section toolbar_buttons {
-    <a asp-controller="Categories" asp-action="Create" class="btn btn-bg-light btn-outline btn-outline-dashed hover-scale">New Category</a>
+    <button type="button" class="btn btn-bg-light btn-outline btn-outline-dashed hover-scale" 
+            data-bs-toggle="modal" 
+            data-bs-target="#categoryModal"
+            onclick="onClickNewOrUpdateCategory('Create', $(this))"
+            >
+        New Category
+    </button>
 }
 
 @section Scripts {
+    <partial name="Modal/_modal" />
+    <partial name="_ValidationScriptsPartial" />
     <script>
         function onClickToggleStatusBtn(item) {
             Swal.fire({
@@ -126,6 +110,30 @@
                 }
             });
         }
-
+        var createModal = new bootstrap.Modal(document.getElementById('categoryModal'), {keyboard: false});
+        var updateRow;
+        function onClickNewOrUpdateCategory(type, button, id = null) {
+            $.ajax({
+                url: "/Categories/" +(type == 'Update' ? "UpdateAjax" : "CreateAjax") + (id != null ? "/"+id : ""),
+                success: function(form){
+                    $("#categoryModal").find('.modal-content').html(form);
+                    $.validator.unobtrusive.parse($("#categoryModal"))
+                },
+            });
+            if (type == 'Update') updateRow = $('tbody').find("tr#"+id);
+        }
+        function onSuccessForm(html) {
+            showToast('Category added successfully!', 'text-white bg-success');
+            createModal.hide()
+            $('tbody').append(html)
+        }
+        function onSuccessEditForm(html) {
+            showToast('Category edited successfully!', 'text-white bg-success');
+            createModal.hide()
+            if(updateRow !== undefined) {
+                $(updateRow).replaceWith(html);
+                updateRow = undefined;
+            }
+        }
     </script>
 }
