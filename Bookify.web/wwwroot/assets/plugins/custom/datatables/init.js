@@ -18,7 +18,7 @@ var KTDatatablesExample = function () {
         // Init datatable --- more info on datatables: https://datatables.net/manual/
         datatable = $(table).DataTable({
             "info": false,
-            'order': [],
+            // 'order': [],
             'pageLength': 10,
         });
     }

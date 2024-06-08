@@ -1,30 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Bookify.web.Filters;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
 namespace Bookify.web.Controllers
 {
     public class CategoriesController : Controller
     {
         private readonly ILogger<CategoriesController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(ILogger<CategoriesController> logger, ApplicationDbContext context)
+        public CategoriesController(ILogger<CategoriesController> logger, ApplicationDbContext context, IMapper mapper)
         {
             _logger = logger;
             _context = context; 
+            _mapper = mapper; 
         }
 
         public IActionResult Index()
         {
             var categories = _context.Categories.AsNoTracking().ToList();
-            return View(categories);
+            var viewModel = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
+            return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -33,11 +26,13 @@ namespace Bookify.web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var category = new Category { Name = model.Name};
+            var category = _mapper.Map<Category>(model);
             _context.Add(category);
             _context.SaveChanges();
 
-            return PartialView("Modal/_CategoryRow", category); 
+            var viewModel = _mapper.Map<CategoryViewModel>(category);
+
+            return PartialView("Modal/_CategoryRow", viewModel); 
         }
 
         [HttpGet]
@@ -59,7 +54,7 @@ namespace Bookify.web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            _context.Add(new Category { Name = model.Name});
+            _context.Add(_mapper.Map<Category>(model));
             _context.SaveChanges();
 
             return RedirectToAction(nameof(Index)); 
@@ -70,10 +65,7 @@ namespace Bookify.web.Controllers
         {
             var model = _context.Categories.FirstOrDefault(c => c.Id == id);
             if (model == null) return NotFound();
-            var viewModel = new CreateCategoryViewModel {
-                Id = id,
-                Name = model.Name,
-            };
+            var viewModel = _mapper.Map<CreateCategoryViewModel>(model);
             return View("Update", viewModel); 
         }
 
@@ -83,7 +75,7 @@ namespace Bookify.web.Controllers
             if (!ModelState.IsValid) return View(model);
             var category = _context.Categories.FirstOrDefault(c => c.Id == model.Id);
             if (category == null) return NotFound();
-            category.Name = model.Name;
+            category = _mapper.Map(model, category);
             category.UpdatedOn = DateTime.Now;
             _context.SaveChanges();
             return RedirectToAction(nameof(Index)); 
@@ -95,10 +87,8 @@ namespace Bookify.web.Controllers
         {
             var model = _context.Categories.FirstOrDefault(c => c.Id == id);
             if (model == null) return NotFound();
-            var viewModel = new CreateCategoryViewModel {
-                Id = id,
-                Name = model.Name,
-            };
+            var viewModel = _mapper.Map<CreateCategoryViewModel>(model);
+
             return PartialView("Modal/_EditFormData", viewModel); 
         }
 
@@ -109,10 +99,12 @@ namespace Bookify.web.Controllers
             if (!ModelState.IsValid) return View(model);
             var category = _context.Categories.FirstOrDefault(c => c.Id == model.Id);
             if (category == null) return NotFound();
-            category.Name = model.Name;
+            category = _mapper.Map(model, category);
             category.UpdatedOn = DateTime.Now;
             _context.SaveChanges();
-            return PartialView("Modal/_CategoryRow", category); 
+            
+            var viewModel = _mapper.Map<CategoryViewModel>(category);
+            return PartialView("Modal/_CategoryRow", viewModel); 
         }
 
         [HttpPost]
