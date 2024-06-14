@@ -19,9 +19,24 @@ var KTDatatablesExample = function () {
         datatable = $(table).DataTable({
             "info": false,
             // 'order': [],
+            "columnDefs": [
+                  {
+                        orderable: false,
+                        targets: 0
+                    }
+            ],
             'pageLength': 10,
         });
     }
+    const checkbox = (dtIdname) => {
+        const e = o.querySelectorAll('tbody [type="checkbox"]');
+        let c = !1,
+            l = 0;
+        e.forEach((e) => {
+            e.checked && ((c = !0), l++);
+        }),
+            c ? ((r.innerHTML = l), t.classList.add("d-none"), n.classList.remove("d-none")) : (t.classList.remove("d-none"), n.classList.add("d-none"));
+    };
 
     // Hook export buttons
     var exportButtons = (tableItem) => {

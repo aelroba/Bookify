@@ -1,0 +1,166 @@
+<div class="modal fade" tabindex="-1" id="kt_modal_add_user">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3 class="modal-title">Create Author</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <div class="d-flex flex-column scroll-y px-5 px-lg-10" id="kt_modal_add_user_scroll"
+                    data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-max-height="auto"
+                    data-kt-scroll-dependencies="#kt_modal_add_user_header"
+                    data-kt-scroll-wrappers="#kt_modal_add_user_scroll" data-kt-scroll-offset="300px">
+                    <div class="fv-row mb-7">
+                        <label class="required fw-semibold fs-6 mb-2">Author Name</label>
+                        <input type="text" name="author_name" class="form-control form-control-solid mb-3 mb-lg-0"
+                            placeholder="Please enter author name" value="" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Discard</button>
+
+                    <button type="button" class="btn btn-primary" onclick="onClickSubmitBtn($(this))" id="submit">
+                        <span class="indicator-label">Submit</span>
+                        <span class="indicator-progress">Please wait...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                    </button>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+    <script>
+        function onClickNewAuthorBtn(item) {
+            $(" #submit").removeAttr('data-id');
+            openModal();
+        }
+        function onClickSubmitBtn(item){
+            if(item.data('id') == undefined)
+                addNewAuthor(item);
+            else 
+                onUpdatingRow(item)
+        }
+        function onDeleteItem(item) {
+            Swal.fire({
+                html: `<h1>Are you Sure?</h1>`,
+                icon: "info",
+                buttonsStyling: false,
+                showCancelButton: true,
+                confirmButtonText: "Ok, got it!",
+                cancelButtonText: 'Nope, cancel it',
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: 'btn btn-danger'
+                }
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method: 'Delete',
+                        url: "/Authors/Destroy/" + item.data('id'),
+                        data: {
+                            "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
+                        },
+                        success: function (result) {
+                            item.parent().parent().parent().parent().remove()
+                            Swal.fire("Saved!", "", "success");
+                            
+                        },
+                        error: function () {
+                            Swal.fire("Error!", "", "error");
+                        }
+                    });
+                }
+            });
+        }
+        function onStartEditingRow(item) {
+            onStartLoadingModal();
+            $.ajax({
+                method: 'POST',
+                url: "/Authors/Edit/" + item.data('id'),
+                data: {
+                    "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
+                },
+                success: function (result) {
+                    $("#kt_modal_add_user #submit").attr('data-id', item.data('id'));
+
+                    onFinishLoadingModal();
+                    openModal();
+                    $("input[name=author_name]").val(result.name)
+
+                },
+                error: function () {
+                    onFinishLoadingModal()
+                    closeModal();
+                }
+            });
+        }
+
+        function addNewAuthor(item) {
+            onStartLoadingModal();
+            $.ajax({
+                method: 'POST',
+                url: "/Authors/Create",
+                data: {
+                    "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
+                    "Name": $("input[name=author_name]").val(),
+                },
+                success: function (result) {
+                    closeModal();
+                    onFinishLoadingModal();
+                },
+                error: function () {
+                    closeModal();
+                    onFinishLoadingModal()
+                }
+            });
+        }
+
+        function onUpdatingRow(item) {
+            onStartLoadingModal();
+            $.ajax({
+                method: 'PUT',
+                url: "/Authors/Update/" + item.data('id'),
+                data: {
+                    "__RequestVerificationToken": $('meta[name=__RequestVerificationToken]').attr("content"),
+                    "Name": $("input[name=author_name]").val(),
+                },
+                success: function (result) {
+                    onFinishLoadingModal();
+                    closeModal();
+                },
+                error: function () {
+                    onFinishLoadingModal()
+                    closeModal();
+                }
+            });
+        }
+        function onStartLoadingModal() {
+            $("#kt_modal_add_user button[id=submit]").prop('disabled', true);
+            $("#kt_modal_add_user button[id=submit] .indicator-label").hide()
+            $("#kt_modal_add_user button[id=submit] .indicator-progress").show()
+        }
+
+        function onFinishLoadingModal() {
+            $("#kt_modal_add_user button[id=submit]").prop('disabled', false);
+            $("#kt_modal_add_user button[id=submit] .indicator-label").show()
+            $("#kt_modal_add_user button[id=submit] .indicator-progress").hide()
+        }
+        function closeModal() {
+            var myModalEl = document.getElementById('kt_modal_add_user');
+            var modal = bootstrap.Modal.getInstance(myModalEl)
+            modal.hide();
+        }
+        function openModal() {
+            var myModal = new bootstrap.Modal(document.getElementById('kt_modal_add_user'), {
+                keyboard: false
+            })
+            myModal.show();
+        }
+    </script>
